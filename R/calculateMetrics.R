@@ -11,7 +11,7 @@
 #'
 #' @return A \code{data.frame} with calculated metrics for the replicate.
 #'
-#' @export
+
 calculateMetrics <- function(prediction, presence, absence_or_bg_sf, type = c("PBG","PAA","PA")) {
   type <- match.arg(type)
 

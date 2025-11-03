@@ -9,10 +9,11 @@
 #'
 #' @return An \code{sf} object with randomly sampled background points.
 #'
-#' @export
+
 generateBackgroundPoints <- function(rasters, nPoints) {
   bg_df <- suppressMessages(as.data.frame(predicts::backgroundSample(rasters, n = nPoints * 5)))
   bg_df <- bg_df %>% dplyr::slice_sample(n = nPoints)
   bg <- sf::st_as_sf(bg_df, coords = c("x","y"), crs = terra::crs(rasters), remove = FALSE)
   return(bg)
 }
+

@@ -1,10 +1,10 @@
 Package: poEvaluationMetrics
-Title: What the Package Does (One Line, Title Case)
+Title: Calculating Evaluation Metrics For Species Distribution Models
 Version: 0.0.0.9000
 Authors@R: 
-    person("First", "Last", , "first.last@example.com", role = c("aut", "cre"))
+    person("Lisa", "Bald", , "bald@staff.uni-marburg.de", role = c("aut", "cre"))
 Description: What the package does (one paragraph).
-License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+License: `use_gpl3_license()`
     license
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -12,3 +12,14 @@ RoxygenNote: 7.3.3
 Suggests: 
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
+Imports:
+	dplyr,
+	terra,
+	mgcv,
+	sf,
+	Metrics,
+	predicts,
+	CAST,
+	prg,
+	PresenceAbsence,
+	mecofun

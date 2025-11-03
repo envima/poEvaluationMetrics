@@ -12,6 +12,8 @@
 #' @param environmentalVariables Optional unless `background = TRUE` or `aa` is missing. A `terra::SpatRaster` with environmental covariates.
 #' @param noPointsTesting Integer. Number of background or artificial absence points to generate.
 #' @param prediction A `terra::SpatRaster` object with the prediction map.
+#' @param replicates Integer. Number of times the calculation of evaluation metrics should be repeated. Mean of all replciates will be returned for more stable results.
+
 #'
 #' @return A named `list` with the following components:
 #' \describe{
@@ -40,12 +42,8 @@
 
 #'
 #' @import terra sf dplyr CAST Metrics prg
-#' @export
 
-#source("R/run8/functions/generateBackgroundPoints.R")
-#source("R/run8/functions/generateAAPoints.R")
-#source("R/run8/functions/calculateMetrics.R")
-#source("R/run8/functions/indexCalculation.R")
+
 
 performanceEstimation <- function(
     prediction,
@@ -105,6 +103,7 @@ performanceEstimation <- function(
   if (isTRUE(background)) {
     message(paste("Calculating metrics on presence-background with", replicates, "replicates."))
     indexPBG <- do.call("rbind", lapply(1:replicates, function(i) {
+     # print(i)
       bg <- generateBackgroundPoints(environmentalVariables, noPointsTesting)
       calculateMetrics(prediction, presence, bg, type = "PBG")
     }))
@@ -122,9 +121,9 @@ performanceEstimation <- function(
     aa_mask <- aoa_result$AOA
     aa_mask[aa_mask > 0] <- NA
 
-    aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting * 10, tryf = 30)))
-    if(nrow(aa_df) > noPointsTesting) aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
-    aa <- sf::st_as_sf(aa_df, coords = c("x","y"), crs = terra::crs(aa_mask), remove = FALSE)
+   # aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting * 10, tryf = 60)))
+  #  if(nrow(aa_df) > noPointsTesting) aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
+  #  aa <- sf::st_as_sf(aa_df, coords = c("x","y"), crs = terra::crs(aa_mask), remove = FALSE)
 
     indexPAA <- do.call("rbind", lapply(1:replicates, function(i) {
 
@@ -159,3 +158,5 @@ performanceEstimation <- function(
   gc()
   return(data)
 }
+
+

@@ -29,6 +29,8 @@ performanceEstimation(
 \item{environmentalVariables}{Optional unless \code{background = TRUE} or \code{aa} is missing. A \code{terra::SpatRaster} with environmental covariates.}
 
 \item{noPointsTesting}{Integer. Number of background or artificial absence points to generate.}
+
+\item{replicates}{Integer. Number of times the calculation of evaluation metrics should be repeated. Mean of all replciates will be returned for more stable results.}
 }
 \value{
 A named \code{list} with the following components:

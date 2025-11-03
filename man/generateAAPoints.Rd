@@ -7,11 +7,9 @@
 generateAAPoints(aa_mask, nPoints)
 }
 \arguments{
+\item{aa_mask}{A \code{terra::SpatRaster} object containing environmentally not suitable areas.}
+
 \item{nPoints}{Integer. Number of artificial absence points to generate.}
-
-\item{rasters}{A \code{terra::SpatRaster} object containing environmental covariates.}
-
-\item{presence}{An \code{sf} object of known presence locations used for testing.}
 }
 \value{
 An \code{sf} object with sampled artificial absence points.

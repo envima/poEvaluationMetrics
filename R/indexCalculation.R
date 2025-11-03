@@ -8,11 +8,8 @@
 #' @param prediction A \code{terra::SpatRaster} object containing predicted values.
 #'
 #' @return A \code{data.frame} containing multiple SDM evaluation metrics for the input data.
-#' @export
 
 
-#source("R/sfbi.R")
-#source("R/run8/functions/confusionMatrix.R")
 
 
 indexCalculation <- function(inputDF, prediction) {
@@ -20,7 +17,7 @@ indexCalculation <- function(inputDF, prediction) {
   # --------------------------------------------------------------------------
   # Compute correlation between observed and predicted
   # --------------------------------------------------------------------------
-  COR <- if (length(unique(inputDF$predicted)) > 1) cor(inputDF$observed, inputDF$predicted) else NA
+  COR <- if (length(unique(inputDF$predicted)) > 1) stats::cor(inputDF$observed, inputDF$predicted) else NA
 
   # --------------------------------------------------------------------------
   # Generate confusion matrix for observed vs predicted
@@ -36,10 +33,17 @@ indexCalculation <- function(inputDF, prediction) {
   randomProbabilityValues <- terra::spatSample(prediction, size = 5000, na.rm = TRUE, as.df = TRUE)[[1]]
 
   # Compute Boyce index for presence vs random predictions
+ # boyce <- tryCatch(sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,
+#                         prd0 = randomProbabilityValues, ktry = 12)
+#                    , error = function(e) NA_real_
+#  )
+
   boyce <- sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,
-                prd0 = randomProbabilityValues, ktry = 10)
+                         prd0 = randomProbabilityValues, ktry = 10)
+
   SBI_tp <- boyce[1]; SBI_cr <- boyce[2]; SBI_bs <- boyce[3]
   SBI_ps <- boyce[4]; SBI_ad <- boyce[5]; SBI_m <- boyce[6]
+
 
   # --------------------------------------------------------------------------
   # Compute other skill metrics
