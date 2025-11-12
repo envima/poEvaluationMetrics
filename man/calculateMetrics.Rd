@@ -4,12 +4,7 @@
 \alias{calculateMetrics}
 \title{Calculate Performance Metrics for a single replicate/model/map}
 \usage{
-calculateMetrics(
-  prediction,
-  presence,
-  absence_or_bg_sf,
-  type = c("PBG", "PAA", "PA")
-)
+calculateMetrics(prediction, presence, absence_or_bg_sf)
 }
 \arguments{
 \item{prediction}{A \code{terra::SpatRaster} object containing model predictions.}
@@ -17,8 +12,6 @@ calculateMetrics(
 \item{presence}{An \code{sf} object of known presence locations.}
 
 \item{absence_or_bg_sf}{An \code{sf} object of absence, background, or artificial absence points.}
-
-\item{type}{Character. One of \code{"PBG"}, \code{"PAA"}, or \code{"PA"} indicating the evaluation type.}
 }
 \value{
 A \code{data.frame} with calculated metrics for the replicate.

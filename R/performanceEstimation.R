@@ -41,7 +41,6 @@
 #' }
 
 #'
-#' @import terra sf dplyr CAST Metrics prg
 
 
 
@@ -60,11 +59,6 @@ performanceEstimation <- function(
   # Input validation
   # -------------------------------------------------------------------
 
-  requireNamespace("sf")
-  requireNamespace("terra")
-  requireNamespace("CAST")
-  requireNamespace("Metrics")
-  requireNamespace("dplyr")
 
   if (!inherits(prediction, "SpatRaster")) stop("'prediction' must be an spatRaster object.")
   if (!inherits(presence, "sf")) stop("'presence' must be an sf object.")
@@ -103,9 +97,9 @@ performanceEstimation <- function(
   if (isTRUE(background)) {
     message(paste("Calculating metrics on presence-background with", replicates, "replicates."))
     indexPBG <- do.call("rbind", lapply(1:replicates, function(i) {
-     # print(i)
+      # print(i)
       bg <- generateBackgroundPoints(environmentalVariables, noPointsTesting)
-      calculateMetrics(prediction, presence, bg, type = "PBG")
+      calculateMetrics(prediction, presence, bg)
     }))
     indexPBG <- indexPBG %>% dplyr::summarize_all(mean, na.rm = TRUE)
   } else indexPBG <- NA
@@ -121,23 +115,24 @@ performanceEstimation <- function(
     aa_mask <- aoa_result$AOA
     aa_mask[aa_mask > 0] <- NA
 
-   # aa_df <- suppressMessages(as.data.frame(predicts::backgroundSample(aa_mask, n = noPointsTesting * 10, tryf = 60)))
-  #  if(nrow(aa_df) > noPointsTesting) aa_df <- aa_df %>% dplyr::slice_sample(n = noPointsTesting)
-  #  aa <- sf::st_as_sf(aa_df, coords = c("x","y"), crs = terra::crs(aa_mask), remove = FALSE)
-
     indexPAA <- do.call("rbind", lapply(1:replicates, function(i) {
 
       # Sample AA points from precomputed mask
       aa <- generateAAPoints(aa_mask, noPointsTesting)
 
       # Combine presence and artificial absence points
-      inputPAA <- na.omit(rbind(
-        data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
-        data.frame(predicted = terra::extract(prediction, aa)[[2]], observed = 0)
-      ))
+      #inputPAA <- na.omit(rbind(
+      #  data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
+      #  data.frame(predicted = terra::extract(prediction, aa)[[2]], observed = 0)
+      #))
 
       # Calculate metrics
-      indexCalculation(inputPAA, prediction = prediction)
+      #indexCalculation(inputPAA, prediction = prediction)
+      calculateMetrics(prediction, presence, aa)
+
+
+
+
     }))
     indexPAA <- indexPAA %>% dplyr::summarize_all(mean, na.rm = TRUE)
   } else indexPAA <- NA
@@ -146,7 +141,7 @@ performanceEstimation <- function(
   # 3. Presence-Absence (PA)
   # -------------------------------------------------------------------
   if (!is.logical(absence) || !isFALSE(absence)) {
-    indexPA <- calculateMetrics(prediction, presence, absence, type = "PA")
+    indexPA <- calculateMetrics(prediction, presence, absence)
   } else indexPA <- NA
 
   # -------------------------------------------------------------------

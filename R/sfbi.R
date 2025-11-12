@@ -29,30 +29,30 @@ sfbi <- function(prd1, prd0, ktry=10) {
   oc <- c(rep(1, n1), rep(0, n0))
 
   prd_cr <- tryCatch({
-    md_cr = mgcv::gam(oc ~ s(p,bs="cr",k=min(ktry,length(unique(p)))), family=binomial)
+    md_cr = mgcv::gam(oc ~ s(p,bs="cr",k=min(ktry,length(unique(p)))), family=stats::binomial)
     prd_cr = predict(md_cr,newdata=data.frame(p=prd),type='response')
   }, error = function(e) {
     # Handle mgcvError specifically
     return(NA)
   })
 
-  md_tp = mgcv::gam(oc ~ s(p,bs="tp",k=min(ktry,length(unique(p)))), family=binomial)
-  prd_tp = predict(md_tp,newdata=data.frame(p=prd),type='response')
-  md_bs = mgcv::gam(oc ~ s(p,bs="bs",k=min(ktry,length(unique(p)))), family=binomial)
-  prd_bs = predict(md_bs,newdata=data.frame(p=prd),type='response')
-  md_ps = mgcv::gam(oc ~ s(p,bs="ps",k=min(ktry,length(unique(p)))), family=binomial)
-  prd_ps = predict(md_ps,newdata=data.frame(p=prd),type='response')
-  md_ad = mgcv::gam(oc ~ s(p, bs = "ad",k=min(ktry,length(unique(p)))), family=binomial)
-  prd_ad = predict(md_ad,newdata=data.frame(p=prd),type='response')
+  md_tp = mgcv::gam(oc ~ s(p,bs="tp",k=min(ktry,length(unique(p)))), family=stats::binomial)
+  prd_tp = stats::predict(md_tp,newdata=data.frame(p=prd),type='response')
+  md_bs = mgcv::gam(oc ~ s(p,bs="bs",k=min(ktry,length(unique(p)))), family=stats::binomial)
+  prd_bs = stats::predict(md_bs,newdata=data.frame(p=prd),type='response')
+  md_ps = mgcv::gam(oc ~ s(p,bs="ps",k=min(ktry,length(unique(p)))), family=stats::binomial)
+  prd_ps = stats::predict(md_ps,newdata=data.frame(p=prd),type='response')
+  md_ad = mgcv::gam(oc ~ s(p, bs = "ad",k=min(ktry,length(unique(p)))), family=stats::binomial)
+  prd_ad = stats::predict(md_ad,newdata=data.frame(p=prd),type='response')
   prd_m = (prd_tp + prd_cr + prd_bs + prd_ps + prd_ad)/5
-  SBI_tp <- cor(prd,prd_tp,method="spearman")
-  SBI_bs <- cor(prd,prd_bs,method="spearman")
-  SBI_ps <- cor(prd,prd_ps,method="spearman")
-  SBI_ad <- cor(prd,prd_ad,method="spearman")
+  SBI_tp <- stats::cor(prd,prd_tp,method="spearman")
+  SBI_bs <- stats::cor(prd,prd_bs,method="spearman")
+  SBI_ps <- stats::cor(prd,prd_ps,method="spearman")
+  SBI_ad <- stats::cor(prd,prd_ad,method="spearman")
 
   SBI_cr <- tryCatch({
 
-    SBI_cr <- cor(prd,prd_cr,method="spearman")
+    SBI_cr <- stats::cor(prd,prd_cr,method="spearman")
     #return(SBI_cr)
   }
   , error = function(e) {return(NA)}
@@ -60,7 +60,7 @@ sfbi <- function(prd1, prd0, ktry=10) {
 
 
 
-  SBI_m <- cor(prd,prd_m,method="spearman")
+  SBI_m <- stats::cor(prd,prd_m,method="spearman")
 
   return(c(SBI_tp, SBI_cr, SBI_bs, SBI_ps, SBI_ad, SBI_m))
 

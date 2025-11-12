@@ -7,16 +7,14 @@
 #' @param prediction A \code{terra::SpatRaster} object containing model predictions.
 #' @param presence An \code{sf} object of known presence locations.
 #' @param absence_or_bg_sf An \code{sf} object of absence, background, or artificial absence points.
-#' @param type Character. One of \code{"PBG"}, \code{"PAA"}, or \code{"PA"} indicating the evaluation type.
 #'
 #' @return A \code{data.frame} with calculated metrics for the replicate.
 #'
 
-calculateMetrics <- function(prediction, presence, absence_or_bg_sf, type = c("PBG","PAA","PA")) {
-  type <- match.arg(type)
+calculateMetrics <- function(prediction, presence, absence_or_bg_sf) {
 
   # Combine predicted values for presence and absence/background
-  inputDF <- na.omit(rbind(
+  inputDF <- stats::na.omit(rbind(
     data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
     data.frame(predicted = terra::extract(prediction, absence_or_bg_sf)[[2]], observed = 0)
   ))

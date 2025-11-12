@@ -219,7 +219,7 @@ tcr <- function(predicted, observed, prediction, q = 0.10) {
 
   # Compute threshold value from raster
   prediction_values <- terra::values(prediction, na.rm = TRUE)
-  thr <- quantile(prediction_values, probs = 1 - q, type = 7)
+  thr <- stats::quantile(prediction_values, probs = 1 - q, type = 7)
 
   # Return proportion of presences above threshold
   mean(pres >= thr)
