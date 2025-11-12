@@ -4,3 +4,7 @@
 
 
 <!-- End Badges -->
+
+```r
+devtools::install_github("envima/poEvaluationMetrics")
+```
