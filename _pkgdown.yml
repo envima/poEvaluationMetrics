@@ -1,0 +1,29 @@
+url: https://envima.github.io/poEvaluationMetrics/
+template:
+  bootstrap: 5
+
+articles:
+  - title: Articles
+    contents:
+      - poEvaluationMetrics
+
+reference:
+  - title: "Full SDM evaluation"
+    contents:
+      - performanceEstimation
+      - calculateMetrics
+      - indexCalculation
+  - title: "Sampling points"
+    contents:
+      - generateBackgroundPoints
+      - generateAAPoints
+  - title: "Metric helpers"
+    contents:
+      - Fbp
+      - sedi
+      - orss
+      - omission
+      - brier_score
+      - fowlkes_mallows
+      - mcc
+      - tcr

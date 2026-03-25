@@ -1,0 +1,16 @@
+Fbp                     Fbp: Modified F1 Score
+brier_score             Brier Score
+calculateMetrics        Calculate Performance Metrics for a single
+                        replicate/model/map
+fowlkes_mallows         Fowlkes-Mallows Index
+generateAAPoints        Generate Artificial Absence Points for SDM
+                        Evaluation
+generateBackgroundPoints
+                        Generate Background Points for SDM Evaluation
+indexCalculation        Calculate SDM Metrics
+mcc                     Matthews Correlation Coefficient (MCC)
+omission                Omission Rate
+orss                    Odds Ratio Skill Score (ORSS)
+performanceEstimation   SDM performance evaluation
+sedi                    Symmetric Extremal Dependence Index (SEDI)
+tcr                     Top-q% Capture Rate

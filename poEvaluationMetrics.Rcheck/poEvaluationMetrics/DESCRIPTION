@@ -1,0 +1,27 @@
+Package: poEvaluationMetrics
+Title: Calculating Evaluation Metrics For Species Distribution Models
+Version: 0.0.0.9000
+Authors@R: 
+    person("Lisa", "Bald", , "bald@staff.uni-marburg.de", role = c("aut", "cre"))
+Description: Computes evaluation metrics for species distribution models (SDMs)
+    including AUC, correlation, precision-recall gain, Boyce-type indices (SBI),
+    threshold-based scores (TSS, Kappa, F1-style scores), and omission rate.
+    Supports presence–absence, presence–background (with generated background points),
+    and presence–artificial-absence workflows using CAST Area of Applicability.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+Suggests: testthat (>= 3.0.0), pkgdown, downlit, knitr, rmarkdown
+VignetteBuilder: knitr
+Config/testthat/edition: 3
+Imports: dplyr, terra, mgcv, sf, Metrics, predicts, CAST, prg,
+        PresenceAbsence, mecofun
+URL: https://envima.github.io/poEvaluationMetrics/,
+        https://github.com/envima/poEvaluationMetrics
+BugReports: https://github.com/envima/poEvaluationMetrics/issues
+NeedsCompilation: no
+Packaged: 2026-03-25 10:26:25 UTC; lisabald
+Author: Lisa Bald [aut, cre]
+Maintainer: Lisa Bald <bald@staff.uni-marburg.de>
+Built: R 4.5.2; ; 2026-03-25 10:26:33 UTC; unix
