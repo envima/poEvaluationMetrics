@@ -1,26 +1,29 @@
-#'@author https://doi.org/10.1111/ecog.07218
-#'@author Canran Liu, Graeme Newell, Matt White, Josephine Machunter
-#'@references Improving the estimation of the Boyce index using statistical smoothing methods for evaluating species distribution models with presence-only data
-#'@source https://nsojournals.onlinelibrary.wiley.com/action/downloadSupplement?doi=10.1111%2Fecog.07218&file=ecog13216-sup-0001-AppendixS1.docx
+#' Smoothed Boyce-index style correlations (SBI)
 #'
+#' Six Spearman correlations between a suitability gradient and GAM-smoothed
+#' presence–background responses (multiple basis types), following Liu et al.
+#' (methods in Ecography; see references).
 #'
+#' @param prd1 Numeric vector of predicted suitability at presence sites.
+#' @param prd0 Numeric vector of predicted suitability at random (e.g. background) sites.
+#' @param ktry Positive integer: basis dimension passed to [mgcv::gam()] smooths
+#'   (capped by the number of unique prediction values).
 #'
-#' @param prd1 Suitability values predicted from the species distribution model you want to evaluate using some predictions for presence sites.
-#' @param prd0 Suitability values predicted from the species distribution model you want to evaluate using some predictions for random points.
-#' @param ktry basis dimension for smoothers, which is a positive integer. Generally, the default value 10 is ok.
-
-
-#Note: Please load the R package mgcv before using this function
-#	Evaluation data: include two vectors (prd1 and prd0), which are suitability values
-#		predicted from the species distribution model you want to evaluate using some
-#		presence points and some random points (i.e. random background sites).
-#	prd1: predictions for presence sites.
-#	prd0: predictions for random points.
-#	ktry: basis dimension for smoothers, which is a positive integer.
-#	         Generally, the default value 10 is ok.
-
-
-sfbi <- function(prd1, prd0, ktry=10) {
+#' @return Numeric vector of length six:
+#'   `SBI_tp`, `SBI_cr`, `SBI_bs`, `SBI_ps`, `SBI_ad`, `SBI_m` (mean curve).
+#'   `NA` may appear if a smoother fails (e.g. `SBI_cr`).
+#'
+#' @references
+#' Liu, C., Newell, G., White, M., & Machunter, J. Improving the estimation of the
+#' Boyce index using statistical smoothing methods for evaluating species
+#' distribution models with presence-only data. *Ecography*.
+#' \doi{10.1111/ecog.07218}
+#'
+#' @author Canran Liu, Graeme Newell, Matt White, Josephine Machunter (original implementation).
+#'
+#' @keywords internal
+#' @noRd
+sfbi <- function(prd1, prd0, ktry = 10) {
 
   p <- c(prd1, prd0)
   n1 <- length(prd1)

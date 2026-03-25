@@ -2,14 +2,14 @@
 #'
 #' @description
 #' Generates artificial absence (AA) points for presence-artificial-absence (PAA) evaluation of species distribution models.
-#' Uses Area of Applicability (AOA) to identifiy regions that have a high dissimilarity compared ot presence points.
+#' Uses the Area of Applicability (AOA) mask to sample points from regions
+#' environmentally dissimilar to presence locations.
 #'
 #' @param aa_mask A \code{terra::SpatRaster} object containing environmentally not suitable areas.
 #' @param nPoints Integer. Number of artificial absence points to generate.
 #'
 #' @return An \code{sf} object with sampled artificial absence points.
-#'
-
+#' @export
 generateAAPoints <- function(aa_mask, nPoints) {
   # Sample points from the precomputed AOA mask
   aa_df <- suppressMessages(

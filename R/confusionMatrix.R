@@ -1,6 +1,6 @@
-
-# modified from PresenceAbsence::cmx
-cmx<- function (DATA, threshold = 0.5, which.model = 1, na.rm = FALSE)
+#' @keywords internal
+#' @noRd
+cmx <- function(DATA, threshold = 0.5, which.model = 1, na.rm = FALSE)
 {
   if (is.logical(na.rm) == FALSE) {
     stop("'na.rm' must be of logical type")
@@ -50,8 +50,14 @@ cmx<- function (DATA, threshold = 0.5, which.model = 1, na.rm = FALSE)
   return(C)
 }
 
-# modiefied from mecofun::evalSDM: https://gitup.uni-potsdam.de/macroecology/mecofun/-/blob/master/R/evalSDM.R
-confusionMatrix <- function(observation, predictions, thresh=NULL, thresh.method='MaxSens+Spec', req.sens=0.85, req.spec = 0.85, FPC=1, FNC=1, weigths=rep(1, length(observation))){
+#' Binary predictions from continuous scores (internal)
+#'
+#' Uses [PresenceAbsence::optimal.thresholds()] unless `thresh` is set, then
+#' builds observed/predicted columns via an adapted `cmx()` (from **PresenceAbsence**).
+#'
+#' @keywords internal
+#' @noRd
+confusionMatrix <- function(observation, predictions, thresh = NULL, thresh.method = "MaxSens+Spec", req.sens = 0.85, req.spec = 0.85, FPC = 1, FNC = 1, weigths = rep(1, length(observation))) {
 
   thresh.dat <- data.frame(ID=seq_len(length(observation)),
                            obs = observation,

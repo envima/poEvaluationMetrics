@@ -1,2 +1,7 @@
 ^poEvaluationMetrics\.Rproj$
 ^\.Rproj\.user$
+^docs$
+^pkgdown$
+^\.github$
+^doc$
+^Meta$

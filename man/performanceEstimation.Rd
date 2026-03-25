@@ -6,7 +6,7 @@
 \usage{
 performanceEstimation(
   prediction,
-  presence = NA,
+  presence,
   absence = FALSE,
   background = TRUE,
   aa = TRUE,
@@ -18,27 +18,25 @@ performanceEstimation(
 \arguments{
 \item{prediction}{A \code{terra::SpatRaster} object with the prediction map.}
 
-\item{presence}{Required. A \code{sf} object representing known presence locations.}
+\item{presence}{\strong{Required.} An \code{sf} object of known presence locations.}
 
-\item{absence}{Optional. A \code{sf} object representing known absence locations. If not provided, \code{background} or \code{aa} must be used.}
+\item{absence}{Optional. An \code{sf} object of known absence locations, or \code{FALSE} to skip PA metrics.}
 
-\item{background}{Optional. Either a \code{sf} object with background points, or logical \code{TRUE} to auto-generate them. Logical \code{FALSE} to not calculate them}
+\item{background}{Optional. An \code{sf} object of background points, or logical \code{TRUE} to auto-generate, or \code{FALSE} to skip PBG.}
 
-\item{aa}{Optional. A \code{sf} object representing artificial absence points. If not provided, they are derived using AOA (Area of Applicability).}
+\item{aa}{Optional. An \code{sf} object of artificial absence points, or logical \code{TRUE} to derive via AOA, or \code{FALSE} to skip PAA.}
 
-\item{environmentalVariables}{Optional unless \code{background = TRUE} or \code{aa} is missing. A \code{terra::SpatRaster} with environmental covariates.}
+\item{environmentalVariables}{A \code{terra::SpatRaster} of covariates when \code{background} or \code{aa} is \code{TRUE}, or \code{sf} points are not supplied for those; may be \code{NA} only if both are \code{FALSE} or only fixed \code{sf} points are used.}
 
-\item{noPointsTesting}{Integer. Number of background or artificial absence points to generate.}
+\item{noPointsTesting}{Integer. Number of background or artificial absence points to generate when sampling.}
 
-\item{replicates}{Integer. Number of times the calculation of evaluation metrics should be repeated. Mean of all replciates will be returned for more stable results.}
+\item{replicates}{Integer. Number of replicate draws for PBG/PAA; column-wise
+means across replicates are returned for those scenarios.}
 }
 \value{
-A named \code{list} with the following components:
-\describe{
-\item{indexPA}{Performance metrics using provided absence data.}
-\item{indexPAA}{Performance metrics using artificially generated absence data (AOA-based).}
-\item{indexPBG}{Performance metrics using background data.}
-}
+A \code{data.frame} with one row per computed scenario. The first column is
+\code{scenario} (\code{"PA"}, \code{"PAA"}, or \code{"PBG"}). Remaining columns match
+\code{\link[=calculateMetrics]{calculateMetrics()}} / \code{\link[=indexCalculation]{indexCalculation()}}.
 }
 \description{
 Evaluates the performance of species distribution models (SDMs).
@@ -46,21 +44,21 @@ The evaluation supports three data types: presence-absence (PA), presence-artifi
 Metrics include predictive accuracy (AUC, COR), predictive error measures (MAE, BIAS), across cross-validation replicates.
 }
 \details{
-The index combines accuracy metrics and a spatial correlation stability metric across folds to
-estimate the reliability and generalizability of the model. COR and AUC measure predictive performance,
-while layer-wise correlation (Kappa) measures spatial consistency across folds.
+Metrics combine discrimination (e.g. AUC, COR), probability calibration errors
+(MAE, BIAS), and threshold-based skill from \code{\link[mecofun:evalSDM]{mecofun::evalSDM()}} and helper
+indices (\code{\link[=Fbp]{Fbp()}}, \code{\link[=sedi]{sedi()}}, \code{\link[=orss]{orss()}}, \code{\link[=omission]{omission()}}). PAA uses CAST \code{aoa()} to
+mask environmentally dissimilar areas before sampling artificial absences.
 }
 \examples{
 \dontrun{
-  result <- evaluateSDMPerformance(
-              prediction = prediction_raster,
-              presence = presence_points,
-              background = TRUE,
-              environmentalVariables = env_rasters,
-              replicates = 50)
-  result$indexPA
-  result$indexPAA
-  result$indexPBG
+  result <- performanceEstimation(
+    prediction = prediction_raster,
+    presence = presence_points,
+    background = TRUE,
+    environmentalVariables = env_rasters,
+    replicates = 50
+  )
+  result[result$scenario == "PBG", ]
 }
 
 }

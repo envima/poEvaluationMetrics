@@ -16,5 +16,6 @@ An \code{sf} object with sampled artificial absence points.
 }
 \description{
 Generates artificial absence (AA) points for presence-artificial-absence (PAA) evaluation of species distribution models.
-Uses Area of Applicability (AOA) to identifiy regions that have a high dissimilarity compared ot presence points.
+Uses the Area of Applicability (AOA) mask to sample points from regions
+environmentally dissimilar to presence locations.
 }

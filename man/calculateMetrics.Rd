@@ -14,7 +14,7 @@ calculateMetrics(prediction, presence, absence_or_bg_sf)
 \item{absence_or_bg_sf}{An \code{sf} object of absence, background, or artificial absence points.}
 }
 \value{
-A \code{data.frame} with calculated metrics for the replicate.
+A one-row \code{data.frame} with calculated metrics for the replicate.
 }
 \description{
 Calculates a suite of performance metrics for a single replicate of SDM evaluation.

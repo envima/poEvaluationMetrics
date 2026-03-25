@@ -12,9 +12,16 @@ indexCalculation(inputDF, prediction)
 \item{prediction}{A \code{terra::SpatRaster} object containing predicted values.}
 }
 \value{
-A \code{data.frame} containing multiple SDM evaluation metrics for the input data.
+A one-row \code{data.frame} containing SDM evaluation metrics (see Details).
 }
 \description{
 Computes a comprehensive set of species distribution model (SDM) evaluation metrics
 including correlation, AUC, PRG, MAE, BIAS, and several skill scores.
+}
+\details{
+Columns include correlation \code{COR}; \code{omissionRate}; Boyce-related
+Spearman indices \code{SBI_tp}, \code{SBI_cr}, \code{SBI_bs}, \code{SBI_ps},
+\code{SBI_ad}, \code{SBI_m}; \code{Fbp}, \code{SEDI}, \code{ORSS}; \code{AUC},
+\code{PRG}, \code{MAE}, \code{BIAS}; \code{mecofun::evalSDM} outputs \code{TSS},
+\code{Kappa}, \code{PCC}, \code{Sens}, \code{Spec}; and \code{noPresencePoints}.
 }

@@ -7,11 +7,14 @@
 #' @param inputDF A data frame with columns \code{predicted} and \code{observed}.
 #' @param prediction A \code{terra::SpatRaster} object containing predicted values.
 #'
-#' @return A \code{data.frame} containing multiple SDM evaluation metrics for the input data.
-
-
-
-
+#' @return A one-row \code{data.frame} containing SDM evaluation metrics (see Details).
+#' @details
+#' Columns include correlation \code{COR}; \code{omissionRate}; Boyce-related
+#' Spearman indices \code{SBI_tp}, \code{SBI_cr}, \code{SBI_bs}, \code{SBI_ps},
+#' \code{SBI_ad}, \code{SBI_m}; \code{Fbp}, \code{SEDI}, \code{ORSS}; \code{AUC},
+#' \code{PRG}, \code{MAE}, \code{BIAS}; \code{mecofun::evalSDM} outputs \code{TSS},
+#' \code{Kappa}, \code{PCC}, \code{Sens}, \code{Spec}; and \code{noPresencePoints}.
+#' @export
 indexCalculation <- function(inputDF, prediction) {
 
   # --------------------------------------------------------------------------
@@ -30,7 +33,8 @@ indexCalculation <- function(inputDF, prediction) {
   # --------------------------------------------------------------------------
   # Sample random predictions from raster for Boyce index / stability metrics
   # --------------------------------------------------------------------------
-  randomProbabilityValues <- terra::spatSample(prediction, size = 5000, na.rm = TRUE, as.df = TRUE)[[1]]
+  n_rand <- min(5000L, terra::ncell(prediction))
+  randomProbabilityValues <- terra::spatSample(prediction, size = n_rand, na.rm = TRUE, as.df = TRUE)[[1]]
 
   # Compute Boyce index for presence vs random predictions
  # boyce <- tryCatch(sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,

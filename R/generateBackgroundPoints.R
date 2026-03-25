@@ -8,8 +8,7 @@
 #' @param nPoints Integer. Number of background points to generate.
 #'
 #' @return An \code{sf} object with randomly sampled background points.
-#'
-
+#' @export
 generateBackgroundPoints <- function(rasters, nPoints) {
   bg_df <- suppressMessages(as.data.frame(predicts::backgroundSample(rasters, n = nPoints * 5)))
   bg_df <- bg_df %>% dplyr::slice_sample(n = nPoints)

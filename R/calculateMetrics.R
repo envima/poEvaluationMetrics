@@ -8,9 +8,8 @@
 #' @param presence An \code{sf} object of known presence locations.
 #' @param absence_or_bg_sf An \code{sf} object of absence, background, or artificial absence points.
 #'
-#' @return A \code{data.frame} with calculated metrics for the replicate.
-#'
-
+#' @return A one-row \code{data.frame} with calculated metrics for the replicate.
+#' @export
 calculateMetrics <- function(prediction, presence, absence_or_bg_sf) {
 
   # Combine predicted values for presence and absence/background

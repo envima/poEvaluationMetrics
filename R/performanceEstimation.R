@@ -5,61 +5,53 @@
 #' The evaluation supports three data types: presence-absence (PA), presence-artificial-absence (PAA), and presence-background (PBG).
 #' Metrics include predictive accuracy (AUC, COR), predictive error measures (MAE, BIAS), across cross-validation replicates.
 #'
-#' @param absence Optional. A `sf` object representing known absence locations. If not provided, `background` or `aa` must be used.
-#' @param presence Required. A `sf` object representing known presence locations.
-#' @param background Optional. Either a `sf` object with background points, or logical `TRUE` to auto-generate them. Logical `FALSE` to not calculate them
-#' @param aa Optional. A `sf` object representing artificial absence points. If not provided, they are derived using AOA (Area of Applicability).
-#' @param environmentalVariables Optional unless `background = TRUE` or `aa` is missing. A `terra::SpatRaster` with environmental covariates.
-#' @param noPointsTesting Integer. Number of background or artificial absence points to generate.
 #' @param prediction A `terra::SpatRaster` object with the prediction map.
-#' @param replicates Integer. Number of times the calculation of evaluation metrics should be repeated. Mean of all replciates will be returned for more stable results.
-
+#' @param presence **Required.** An `sf` object of known presence locations.
+#' @param absence Optional. An `sf` object of known absence locations, or `FALSE` to skip PA metrics.
+#' @param background Optional. An `sf` object of background points, or logical `TRUE` to auto-generate, or `FALSE` to skip PBG.
+#' @param aa Optional. An `sf` object of artificial absence points, or logical `TRUE` to derive via AOA, or `FALSE` to skip PAA.
+#' @param environmentalVariables A `terra::SpatRaster` of covariates when `background` or `aa` is `TRUE`, or `sf` points are not supplied for those; may be `NA` only if both are `FALSE` or only fixed `sf` points are used.
+#' @param noPointsTesting Integer. Number of background or artificial absence points to generate when sampling.
+#' @param replicates Integer. Number of replicate draws for PBG/PAA; column-wise
+#'   means across replicates are returned for those scenarios.
 #'
-#' @return A named `list` with the following components:
-#' \describe{
-#'   \item{indexPA}{Performance metrics using provided absence data.}
-#'   \item{indexPAA}{Performance metrics using artificially generated absence data (AOA-based).}
-#'   \item{indexPBG}{Performance metrics using background data.}
-#' }
+#' @return A `data.frame` with one row per computed scenario. The first column is
+#'   `scenario` (`"PA"`, `"PAA"`, or `"PBG"`). Remaining columns match
+#'   [calculateMetrics()] / [indexCalculation()].
 #'
 #' @details
-#' The index combines accuracy metrics and a spatial correlation stability metric across folds to
-#' estimate the reliability and generalizability of the model. COR and AUC measure predictive performance,
-#' while layer-wise correlation (Kappa) measures spatial consistency across folds.
+#' Metrics combine discrimination (e.g. AUC, COR), probability calibration errors
+#' (MAE, BIAS), and threshold-based skill from [mecofun::evalSDM()] and helper
+#' indices ([Fbp()], [sedi()], [orss()], [omission()]). PAA uses CAST `aoa()` to
+#' mask environmentally dissimilar areas before sampling artificial absences.
 #'
 #' @examples
 #' \dontrun{
-#'   result <- evaluateSDMPerformance(
-#'               prediction = prediction_raster,
-#'               presence = presence_points,
-#'               background = TRUE,
-#'               environmentalVariables = env_rasters,
-#'               replicates = 50)
-#'   result$indexPA
-#'   result$indexPAA
-#'   result$indexPBG
+#'   result <- performanceEstimation(
+#'     prediction = prediction_raster,
+#'     presence = presence_points,
+#'     background = TRUE,
+#'     environmentalVariables = env_rasters,
+#'     replicates = 50
+#'   )
+#'   result[result$scenario == "PBG", ]
 #' }
-
 #'
-
-
-
+#' @export
 performanceEstimation <- function(
     prediction,
-    presence = NA,
+    presence,
     absence = FALSE,
     background = TRUE,
     aa = TRUE,
     environmentalVariables = NA,
     noPointsTesting = NA,
-    replicates=100
+    replicates = 100
 ) {
 
   # -------------------------------------------------------------------
   # Input validation
   # -------------------------------------------------------------------
-
-
   if (!inherits(prediction, "SpatRaster")) stop("'prediction' must be an spatRaster object.")
   if (!inherits(presence, "sf")) stop("'presence' must be an sf object.")
   if (!(inherits(absence, "sf") || isFALSE(absence))) stop("'absence' must be an sf object or FALSE")
@@ -67,8 +59,6 @@ performanceEstimation <- function(
   if (!(inherits(aa, "sf") || is.logical(aa))) stop("'aa' must be an sf object or a logical (TRUE/FALSE)")
   if (!(inherits(environmentalVariables, "SpatRaster") || is.na(environmentalVariables))) stop("'environmentalVariables' must be either a terra::SpatRaster object or NA.")
   if (!(is.numeric(noPointsTesting) || is.na(noPointsTesting))) stop("'noPointsTesting' must be a numeric value or NA")
-
-
 
   if (inherits(absence, "sf") && nrow(absence) < 1) {
     absence <- FALSE
@@ -79,12 +69,8 @@ performanceEstimation <- function(
     stop("At least one of absence, background, or artificial absence (aa) must be provided.")
   }
 
-  if ((isTRUE(background) ||  isTRUE(aa)) && !inherits(environmentalVariables, "SpatRaster")) {
+  if ((isTRUE(background) || isTRUE(aa)) && !inherits(environmentalVariables, "SpatRaster")) {
     stop("Environmental variables must be provided to generate background or artificial absence data.")
-  }
-
-  if (is.logical(aa) && isTRUE(aa) && is.na(presence)[1]) {
-    stop("Presence data must be provided to calculate artificial absence (AA) points.")
   }
 
   if (is.na(noPointsTesting)) {
@@ -97,12 +83,13 @@ performanceEstimation <- function(
   if (isTRUE(background)) {
     message(paste("Calculating metrics on presence-background with", replicates, "replicates."))
     indexPBG <- do.call("rbind", lapply(1:replicates, function(i) {
-      # print(i)
       bg <- generateBackgroundPoints(environmentalVariables, noPointsTesting)
       calculateMetrics(prediction, presence, bg)
     }))
-    indexPBG <- indexPBG %>% dplyr::summarize_all(mean, na.rm = TRUE)
-  } else indexPBG <- NA
+    indexPBG <- as.data.frame(lapply(indexPBG, mean, na.rm = TRUE))
+  } else {
+    indexPBG <- NA
+  }
 
   # -------------------------------------------------------------------
   # 2. Presence-Artificial-Absence (PAA)
@@ -116,42 +103,45 @@ performanceEstimation <- function(
     aa_mask[aa_mask > 0] <- NA
 
     indexPAA <- do.call("rbind", lapply(1:replicates, function(i) {
-
-      # Sample AA points from precomputed mask
       aa <- generateAAPoints(aa_mask, noPointsTesting)
-
-      # Combine presence and artificial absence points
-      #inputPAA <- na.omit(rbind(
-      #  data.frame(predicted = terra::extract(prediction, presence)[[2]], observed = 1),
-      #  data.frame(predicted = terra::extract(prediction, aa)[[2]], observed = 0)
-      #))
-
-      # Calculate metrics
-      #indexCalculation(inputPAA, prediction = prediction)
       calculateMetrics(prediction, presence, aa)
-
-
-
-
     }))
-    indexPAA <- indexPAA %>% dplyr::summarize_all(mean, na.rm = TRUE)
-  } else indexPAA <- NA
+    indexPAA <- as.data.frame(lapply(indexPAA, mean, na.rm = TRUE))
+  } else {
+    indexPAA <- NA
+  }
 
   # -------------------------------------------------------------------
   # 3. Presence-Absence (PA)
   # -------------------------------------------------------------------
   if (!is.logical(absence) || !isFALSE(absence)) {
     indexPA <- calculateMetrics(prediction, presence, absence)
-  } else indexPA <- NA
+  } else {
+    indexPA <- NA
+  }
 
   # -------------------------------------------------------------------
-  # Combine results
+  # Combine as one data.frame; first column identifies scenario
   # -------------------------------------------------------------------
-  data <- list(indexPA = indexPA, indexPAA = indexPAA, indexPBG = indexPBG)
-  data <- do.call(rbind, Filter(Negate(is.na), data))
+  append_scenario <- function(df, name) {
+    if (identical(df, NA)) return(NULL)
+    cbind(scenario = name, df, row.names = NULL, stringsAsFactors = FALSE)
+  }
+
+  parts <- list(
+    append_scenario(indexPA, "PA"),
+    append_scenario(indexPAA, "PAA"),
+    append_scenario(indexPBG, "PBG")
+  )
+  parts <- parts[!vapply(parts, is.null, logical(1))]
+
+  if (!length(parts)) {
+    stop("No evaluation scenarios produced results.")
+  }
+
+  out <- do.call(rbind, parts)
+  rownames(out) <- NULL
 
   gc()
-  return(data)
+  return(out)
 }
-
-
