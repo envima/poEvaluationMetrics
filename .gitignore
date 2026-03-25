@@ -1,3 +1,7 @@
 .Rproj.user
 /doc/
 /Meta/
+
+# Omit workflow from pushes until your PAT has the `workflow` scope (GitHub rejects
+# otherwise). Then delete this block, run: git add -f .github/workflows/
+.github/workflows/
