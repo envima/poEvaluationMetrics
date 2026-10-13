@@ -15,7 +15,7 @@
 #' \code{PRG}, \code{MAE}, \code{BIAS}; \code{mecofun::evalSDM} outputs \code{TSS},
 #' \code{Kappa}, \code{PCC}, \code{Sens}, \code{Spec}; and \code{noPresencePoints}.
 #' @export
-indexCalculation <- function(inputDF, prediction) {
+indexCalculation <- function(inputDF, prediction, boyce = TRUE) {
 
   # --------------------------------------------------------------------------
   # Compute correlation between observed and predicted
@@ -33,21 +33,19 @@ indexCalculation <- function(inputDF, prediction) {
   # --------------------------------------------------------------------------
   # Sample random predictions from raster for Boyce index / stability metrics
   # --------------------------------------------------------------------------
-  n_rand <- min(5000L, terra::ncell(prediction))
-  randomProbabilityValues <- terra::spatSample(prediction, size = n_rand, na.rm = TRUE, as.df = TRUE)[[1]]
+ if (boyce) {
+    n_rand <- min(5000L, terra::ncell(prediction))
+    randomProbabilityValues <- terra::spatSample(prediction, size = n_rand, na.rm = TRUE, as.df = TRUE)[[1]]
 
-  # Compute Boyce index for presence vs random predictions
- # boyce <- tryCatch(sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,
-#                         prd0 = randomProbabilityValues, ktry = 12)
-#                    , error = function(e) NA_real_
-#  )
+    boyce_res <- sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,
+                      prd0 = randomProbabilityValues, ktry = 10)
 
-  boyce <- sfbi(prd1 = inputDF[inputDF$observed == 1,]$predicted,
-                         prd0 = randomProbabilityValues, ktry = 10)
-
-  SBI_tp <- boyce[1]; SBI_cr <- boyce[2]; SBI_bs <- boyce[3]
-  SBI_ps <- boyce[4]; SBI_ad <- boyce[5]; SBI_m <- boyce[6]
-
+    SBI_tp <- boyce_res[1]; SBI_cr <- boyce_res[2]; SBI_bs <- boyce_res[3]
+    SBI_ps <- boyce_res[4]; SBI_ad <- boyce_res[5]; SBI_m <- boyce_res[6]
+  } else {
+    SBI_tp <- NA_real_; SBI_cr <- NA_real_; SBI_bs <- NA_real_
+    SBI_ps <- NA_real_; SBI_ad <- NA_real_; SBI_m <- NA_real_
+  }
 
   # --------------------------------------------------------------------------
   # Compute other skill metrics
