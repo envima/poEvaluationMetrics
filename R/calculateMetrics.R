@@ -10,7 +10,7 @@
 #'
 #' @return A one-row \code{data.frame} with calculated metrics for the replicate.
 #' @export
-calculateMetrics <- function(prediction, presence, absence_or_bg_sf) {
+calculateMetrics <- function(prediction, presence, absence_or_bg_sf, boyce = TRUE) {
 
   # Combine predicted values for presence and absence/background
   inputDF <- stats::na.omit(rbind(
@@ -19,6 +19,6 @@ calculateMetrics <- function(prediction, presence, absence_or_bg_sf) {
   ))
 
   # Compute all metrics using indexCalculation
-  metrics <- indexCalculation(inputDF, prediction = prediction)
+  metrics <- indexCalculation(inputDF, prediction = prediction, boyce = boyce)
   return(metrics)
 }
