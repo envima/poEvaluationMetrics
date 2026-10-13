@@ -14,6 +14,7 @@
 #' @param noPointsTesting Integer. Number of background or artificial absence points to generate when sampling.
 #' @param replicates Integer. Number of replicate draws for PBG/PAA; column-wise
 #'   means across replicates are returned for those scenarios.
+#' @param boyce Logical. Whether to compute the Boyce index metrics (`SBI_*`). Default is `TRUE`.
 #'
 #' @return A `data.frame` with one row per computed scenario. The first column is
 #'   `scenario` (`"PA"`, `"PAA"`, or `"PBG"`). Remaining columns match
@@ -32,7 +33,8 @@
 #'     presence = presence_points,
 #'     background = TRUE,
 #'     environmentalVariables = env_rasters,
-#'     replicates = 50
+#'     replicates = 50,
+#'     boyce = FALSE
 #'   )
 #'   result[result$scenario == "PBG", ]
 #' }
@@ -46,7 +48,8 @@ performanceEstimation <- function(
     aa = TRUE,
     environmentalVariables = NA,
     noPointsTesting = NA,
-    replicates = 100
+    replicates = 100,
+    boyce = TRUE
 ) {
 
   # -------------------------------------------------------------------
@@ -82,9 +85,9 @@ performanceEstimation <- function(
   # -------------------------------------------------------------------
   if (isTRUE(background)) {
     message(paste("Calculating metrics on presence-background with", replicates, "replicates."))
-    indexPBG <- do.call("rbind", lapply(1:replicates, function(i) {
+    indexPBG <- do.call("rbind", lapply(1:replicates, function(v) {
       bg <- generateBackgroundPoints(environmentalVariables, noPointsTesting)
-      calculateMetrics(prediction, presence, bg)
+      calculateMetrics(prediction, presence, bg, boyce = boyce)
     }))
     indexPBG <- as.data.frame(lapply(indexPBG, mean, na.rm = TRUE))
   } else {
@@ -102,9 +105,9 @@ performanceEstimation <- function(
     aa_mask <- aoa_result$AOA
     aa_mask[aa_mask > 0] <- NA
 
-    indexPAA <- do.call("rbind", lapply(1:replicates, function(i) {
-      aa <- generateAAPoints(aa_mask, noPointsTesting)
-      calculateMetrics(prediction, presence, aa)
+    indexPAA <- do.call("rbind", lapply(1:replicates, function(v) {
+      aa_pts <- generateAAPoints(aa_mask, noPointsTesting)
+      calculateMetrics(prediction, presence, aa_pts, boyce = boyce)
     }))
     indexPAA <- as.data.frame(lapply(indexPAA, mean, na.rm = TRUE))
   } else {
@@ -115,7 +118,7 @@ performanceEstimation <- function(
   # 3. Presence-Absence (PA)
   # -------------------------------------------------------------------
   if (!is.logical(absence) || !isFALSE(absence)) {
-    indexPA <- calculateMetrics(prediction, presence, absence)
+    indexPA <- calculateMetrics(prediction, presence, absence, boyce = boyce)
   } else {
     indexPA <- NA
   }
