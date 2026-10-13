@@ -6,6 +6,8 @@
 #'
 #' @param inputDF A data frame with columns \code{predicted} and \code{observed}.
 #' @param prediction A \code{terra::SpatRaster} object containing predicted values.
+#' @param boyce Logical. Whether to compute the Boyce index metrics (`SBI_*`). Default is \code{TRUE}.
+#'
 #'
 #' @return A one-row \code{data.frame} containing SDM evaluation metrics (see Details).
 #' @details
